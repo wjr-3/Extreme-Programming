@@ -1,22 +1,36 @@
 // pages/add/add.js
-// 2025.11.2 v1.1
+// 2025.11.2 v1.1 → 升级支持多联系方式
 Page({
   data: {
-    id: '', // 编辑时的联系人 ID
-    mode: 'add', // 'add' 或 'edit'
+    id: '',
+    mode: 'add',
     name: '',
-    phone: '',
+    // --- 新增多联系方式结构 ---
+    phones: [], // [{ value: '138...', type: '手机' }]
+    emails: [], // [{ value: 'a@b.com', type: '个人' }]
+    address: '',
+    // ----------------------------
     group: '家人',
     groupOptions: ['家人', '同事', '朋友', '其他'],
     avatar: '/images/default-avatar.png',
     tempAvatarPath: '',
-    isSaving: false
+    isSaving: false,
+
+    // 类型选项
+    phoneTypes: ['手机', '工作', '家庭', '其他'],
+    emailTypes: ['个人', '工作', '学校', '其他']
   },
 
   onLoad(options) {
     if (options.id) {
       this.setData({ id: options.id, mode: 'edit' });
       this.loadContact(options.id);
+    } else {
+      // 默认添加一个空电话和邮箱（方便用户直接输入）
+      this.setData({
+        phones: [{ value: '', type: '手机' }],
+        emails: [{ value: '', type: '个人' }]
+      });
     }
   },
 
@@ -27,12 +41,39 @@ Page({
       data: { action: 'get', id: id }
     }).then(res => {
       const contact = res.result.data[0] || {};
+
+      // 兼容旧版：如果 contact.phone 是字符串，则转为数组
+      let phones = [];
+      if (Array.isArray(contact.phones)) {
+        phones = contact.phones.map(p => ({
+          value: p.value || '',
+          type: p.type || '手机'
+        }));
+      } else if (contact.phone) {
+        // 旧数据迁移
+        phones = [{ value: contact.phone, type: '手机' }];
+      } else {
+        phones = [{ value: '', type: '手机' }];
+      }
+
+      let emails = [];
+      if (Array.isArray(contact.emails)) {
+        emails = contact.emails.map(e => ({
+          value: e.value || '',
+          type: e.type || '个人'
+        }));
+      } else {
+        emails = [{ value: '', type: '个人' }];
+      }
+
       this.setData({
         name: contact.name || '',
-        phone: contact.phone || '',
+        phones,
+        emails,
+        address: contact.address || '',
         group: contact.group || '家人',
         avatar: contact.avatar || '/images/default-avatar.png',
-        tempAvatarPath: '' 
+        tempAvatarPath: ''
       });
       wx.hideLoading();
     }).catch(err => {
@@ -68,14 +109,12 @@ Page({
         const x = (width - cropSize) / 2;
         const y = (height - cropSize) / 2;
 
-        // 绘制正方形裁剪区域到 100x100 canvas
         ctx.drawImage(info.path, x, y, cropSize, cropSize, 0, 0, 100, 100);
         ctx.draw(false, () => {
           setTimeout(() => {
             wx.canvasToTempFilePath({
               canvasId: 'avatarCanvas',
               success: (res) => {
-                // 更新页面显示 & 标记需要上传
                 this.setData({
                   avatar: res.tempFilePath,
                   tempAvatarPath: res.tempFilePath
@@ -103,8 +142,8 @@ Page({
     this.setData({ name: e.detail.value });
   },
 
-  onPhoneInput(e) {
-    this.setData({ phone: e.detail.value });
+  onAddressInput(e) {
+    this.setData({ address: e.detail.value });
   },
 
   onGroupChange(e) {
@@ -113,41 +152,123 @@ Page({
     this.setData({ group: selectedGroup });
   },
 
+  // === 电话相关操作 ===
+  onPhoneValueChange(e) {
+    const index = e.currentTarget.dataset.index;
+    const phones = this.data.phones;
+    phones[index].value = e.detail.value;
+    this.setData({ phones });
+  },
+
+  onPhoneTypeChange(e) {
+    const index = e.currentTarget.dataset.index;
+    const phones = this.data.phones;
+    phones[index].type = this.data.phoneTypes[e.detail.value];
+    this.setData({ phones });
+  },
+
+  addPhone() {
+    const phones = this.data.phones;
+    phones.push({ value: '', type: '手机' });
+    this.setData({ phones });
+  },
+
+  removePhone(e) {
+    const index = e.currentTarget.dataset.index;
+    const phones = this.data.phones;
+    if (phones.length <= 1) {
+      wx.showToast({ title: '至少保留一个电话', icon: 'none' });
+      return;
+    }
+    phones.splice(index, 1);
+    this.setData({ phones });
+  },
+
+  // === 邮箱相关操作 ===
+  onEmailValueChange(e) {
+    const index = e.currentTarget.dataset.index;
+    const emails = this.data.emails;
+    emails[index].value = e.detail.value;
+    this.setData({ emails });
+  },
+
+  onEmailTypeChange(e) {
+    const index = e.currentTarget.dataset.index;
+    const emails = this.data.emails;
+    emails[index].type = this.data.emailTypes[e.detail.value];
+    this.setData({ emails });
+  },
+
+  addEmail() {
+    const emails = this.data.emails;
+    emails.push({ value: '', type: '个人' });
+    this.setData({ emails });
+  },
+
+  removeEmail(e) {
+    const index = e.currentTarget.dataset.index;
+    const emails = this.data.emails;
+    if (emails.length <= 1) {
+      wx.showToast({ title: '至少保留一个邮箱', icon: 'none' });
+      return;
+    }
+    emails.splice(index, 1);
+    this.setData({ emails });
+  },
+
+  // === 保存逻辑 ===
   saveContact() {
     if (this.data.isSaving) return;
 
-    const { name, phone, group } = this.data;
+    const { name, phones, emails, address, group } = this.data;
     if (!name.trim()) {
       wx.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
-    if (!phone.trim()) {
-      wx.showToast({ title: '请输入电话', icon: 'none' });
+
+    // 验证至少有一个有效电话
+    const validPhones = phones.filter(p => p.value.trim());
+    if (validPhones.length === 0) {
+      wx.showToast({ title: '请至少填写一个电话号码', icon: 'none' });
       return;
+    }
+
+    // 可选：验证邮箱格式（简单版）
+    for (const email of emails) {
+      if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+        wx.showToast({ title: '邮箱格式不正确', icon: 'none' });
+        return;
+      }
     }
 
     this.setData({ isSaving: true });
 
-    // 头像上传逻辑：仅当用户选择了新头像才上传
     const uploadAvatar = () => {
       if (this.data.tempAvatarPath) {
-        // 生成唯一云存储路径
         const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).substring(2, 12)}.jpg`;
         return wx.cloud.uploadFile({
           cloudPath: cloudPath,
           filePath: this.data.tempAvatarPath
-        }).then(res => {
-          return res.fileID; // 返回云文件 ID
-        });
+        }).then(res => res.fileID);
       } else {
-        // 未更换头像：保留原 avatar（可能是 fileID 或默认路径）
         return Promise.resolve(this.data.avatar);
       }
     };
 
     uploadAvatar()
       .then(avatarFileID => {
-        const payload = { name, phone, group, avatar: avatarFileID };
+        // 构建新数据结构
+        const payload = {
+          name: name.trim(),
+          phones: validPhones.map(p => ({ value: p.value.trim(), type: p.type })),
+          emails: emails
+            .filter(e => e.value.trim())
+            .map(e => ({ value: e.value.trim(), type: e.type })),
+          address: address.trim(),
+          group,
+          avatar: avatarFileID
+        };
+
         const callData = this.data.mode === 'edit'
           ? { action: 'update', id: this.data.id, payload }
           : { action: 'create', payload };

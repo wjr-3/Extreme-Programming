@@ -6,35 +6,61 @@
 
   <!-- 分组筛选 -->
   <view class="group-filter">
-    <button wx:for="{{groups}}" wx:key="item" class="{{item === currentGroup ? 'active' : ''}}" bindtap="filterByGroup" data-group="{{item}}">
+    <button 
+      wx:for="{{groups}}" 
+      wx:key="item" 
+      class="{{item === currentGroup ? 'active' : ''}}" 
+      bindtap="filterByGroup" 
+      data-group="{{item}}"
+    >
       {{item}}
     </button>
   </view>
 
-<!-- 联系人列表 -->
-<view class="contact-list">
-  <view wx:for="{{filteredContacts}}" wx:key="_id" class="contact-item" bindtap="editContact" data-id="{{item._id}}">
-    <image 
-      src="{{item.avatarTempPath || '/images/default-avatar.png'}}" 
-      class="avatar" 
-      mode="aspectFill" 
-    />
-    <view class="info">
-      <text class="name">{{item.name}}</text>
-      <text class="phone">{{item.phone}}</text>
-      <text class="group">{{item.group}}</text>
+  <!-- 联系人列表 -->
+  <view class="contact-list">
+    <view 
+      wx:for="{{filteredContacts}}" 
+      wx:key="_id" 
+      class="contact-item" 
+      bindtap="editContact" 
+      data-id="{{item._id}}"
+    >
+      <image 
+        src="{{item.avatarTempPath || '/images/default-avatar.png'}}" 
+        class="avatar" 
+        mode="aspectFill" 
+      />
+      <view class="info">
+        <text class="name">{{item.name}}</text>
+        <!-- 兼容新旧数据：优先显示 phones[0]，否则 phone -->
+        <text class="phone">
+          {{item.phones && item.phones.length ? item.phones[0].value : item.phone}}
+        </text>
+        <text class="group">{{item.group}}</text>
+      </view>
+
+      <!-- ✨ 新增：收藏按钮（放在删除按钮前面） -->
+      <view 
+        class="favorite-btn" 
+        catchtap="toggleFavorite" 
+        data-id="{{item._id}}"
+      >
+        <text class="star {{item.isFavorite ? 'star-filled' : ''}}">★</text>
+      </view>
+
+      <!-- 删除按钮 -->
+      <button class="delete-btn" size="mini" catchtap="deleteContact" data-id="{{item._id}}">删除</button>
     </view>
-    <button class="delete-btn" size="mini" catchtap="deleteContact" data-id="{{item._id}}">删除</button>
+
+    <view wx:if="{{filteredContacts.length === 0}}" class="empty">暂无联系人</view>
   </view>
 
-  <view wx:if="{{filteredContacts.length === 0}}" class="empty">暂无联系人</view>
-</view>
-
-<!-- 刷新按钮 -->
-<view class="refresh-btn" bindtap="loadContacts">
-  <text class="refresh-icon">⟳</text>
-  <text>刷新</text>
-</view>
+  <!-- 刷新按钮 -->
+  <view class="refresh-btn" bindtap="loadContacts">
+    <text class="refresh-icon">⟳</text>
+    <text>刷新</text>
+  </view>
 
   <!-- 添加按钮 -->
   <view class="fab" bindtap="goToAdd">+</view>

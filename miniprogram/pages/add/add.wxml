@@ -5,23 +5,86 @@
     <image src="{{avatar}}" mode="aspectFill" class="avatar"></image>
   </view>
 
-  <!--姓名-->
+  <!-- 姓名 -->
   <view class="form-item">
     <label>姓名</label>
     <input value="{{name}}" bindinput="onNameInput" placeholder="请输入姓名" />
   </view>
 
-  <!-- 电话输入-->
+  <!-- 电话列表 -->
+  <view class="form-section-title">电话号码</view>
+  <view wx:for="{{phones}}" wx:key="index" class="contact-item">
+    <input 
+      value="{{item.value}}" 
+      data-index="{{index}}" 
+      bindinput="onPhoneValueChange" 
+      placeholder="请输入电话号码" 
+      type="phone"
+      class="contact-input"
+    />
+    <picker 
+      mode="selector" 
+      range="{{phoneTypes}}" 
+      value="{{phoneTypes.indexOf(item.type)}}" 
+      data-index="{{index}}" 
+      bindchange="onPhoneTypeChange"
+      class="contact-type-picker"
+    >
+      <view class="picker">{{item.type}}</view>
+    </picker>
+    <button 
+      wx:if="{{phones.length > 1}}" 
+      class="del-btn" 
+      data-index="{{index}}" 
+      bindtap="removePhone"
+    >删除</button>
+  </view>
+  <button class="add-btn" bindtap="addPhone">+ 添加电话</button>
+
+  <!-- 邮箱列表 -->
+  <view class="form-section-title">电子邮箱</view>
+  <view wx:for="{{emails}}" wx:key="index" class="contact-item">
+    <input 
+      value="{{item.value}}" 
+      data-index="{{index}}" 
+      bindinput="onEmailValueChange" 
+      placeholder="请输入邮箱地址" 
+      class="contact-input"
+    />
+    <picker 
+      mode="selector" 
+      range="{{emailTypes}}" 
+      value="{{emailTypes.indexOf(item.type)}}" 
+      data-index="{{index}}" 
+      bindchange="onEmailTypeChange"
+      class="contact-type-picker"
+    >
+      <view class="picker">{{item.type}}</view>
+    </picker>
+    <button 
+      wx:if="{{emails.length > 1}}" 
+      class="del-btn" 
+      data-index="{{index}}" 
+      bindtap="removeEmail"
+    >删除</button>
+  </view>
+  <button class="add-btn" bindtap="addEmail">+ 添加邮箱</button>
+
+  <!-- 地址 -->
   <view class="form-item">
-    <label>电话</label>
-    <input value="{{phone}}" bindinput="onPhoneInput" placeholder="请输入电话" type="phone" />
+    <label>地址</label>
+    <input value="{{address}}" bindinput="onAddressInput" placeholder="请输入联系地址" />
   </view>
 
-  <!--分组选择 -->
+  <!-- 分组选择 -->
   <view class="form-item">
     <label>分组</label>
-    <picker mode="selector" range="{{['家人', '同事', '朋友', '其他']}}" 
-            value="{{group}}" bindchange="onGroupChange">
+    <picker 
+      mode="selector" 
+      range="{{groupOptions}}" 
+      value="{{groupOptions.indexOf(group)}}" 
+      bindchange="onGroupChange"
+    >
       <view class="picker">{{group}}</view>
     </picker>
   </view>

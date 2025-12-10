@@ -47,10 +47,12 @@
   color: white;
 }
 
+/* ========== 联系人列表 ========== */
+
 .contact-list {
   padding-left: 20rpx;
   padding-right: 80rpx;
-  width:74%;
+  width: 74%;
   margin: 0 auto;
 }
 
@@ -72,11 +74,13 @@
   height: 60rpx;
   border-radius: 50%;
   margin-right: 16rpx;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 .info {
   flex: 1;
   overflow: hidden;
+  min-width: 0; /* 关键：允许子元素溢出省略 */
 }
 
 .name {
@@ -102,9 +106,34 @@
   color: #999;
 }
 
+/* 新增：收藏星标按钮 */
+.favorite-btn {
+  position: absolute;
+  right: 120rpx; /* 原为 20rpx，现在留出星标+间距空间 */
+  top: 25;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 12rpx;
+  flex-shrink: 0;
+}
+
+.star {
+  font-size: 36rpx;
+  color: #ccc; /* 未收藏：灰色 */
+  line-height: 1;
+}
+
+.star.star-filled {
+  color: #ffcc00; /* 已收藏：金色 */
+}
+
+/* 删除按钮：向左移动，为星标留空间 */
 .delete-btn {
   position: absolute;
-  right: 20rpx;
+  right: 20rpx; /* 原为 20rpx，现在留出星标+间距空间 */
   top: 50%;
   transform: translateY(-50%);
   font-size: 22rpx;
@@ -113,54 +142,4 @@
   color: white;
   border-radius: 16rpx;
   min-width: 50rpx;
-}
-
-.empty {
-  text-align: center;
-  color: #999;
-  padding: 80rpx 0;
-  font-size: 26rpx;
-}
-
-.fab {
-  position: fixed;
-  bottom: 150rpx;
-  right: 40rpx;
-  width: 100rpx;
-  height: 100rpx;
-  background: #06456e;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.15);
-}
-
-.refresh-btn {
-  position: fixed;
-  bottom: 280rpx;
-  right: 40rpx;
-  width: 70rpx;
-  height: 70rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #f0f0f0;
-  color: #666;
-  padding: 12rpx 12rpx;
-  border-radius: 50%;
-  font-size: 22rpx;
-  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.1);
-  z-index: 999;
-}
-
-.refresh-icon {
-  font-size: 28rpx;
-  margin-bottom: 4rpx;
-}
-
-.refresh-btn:active {
-  background: #e0e0e0;
 }

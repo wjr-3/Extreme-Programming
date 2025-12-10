@@ -26,6 +26,18 @@
   object-fit: cover;
 }
 
+/* 小标题：如“电话号码”、“电子邮箱” */
+.form-section-title {
+  align-self: flex-start;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin: 40rpx 0 20rpx;
+  padding-left: 8rpx;
+  border-left: 4rpx solid #06456e;
+}
+
+/* 原有表单项（姓名、地址、分组） */
 .form-item {
   width: 100%;
   display: flex;
@@ -56,14 +68,76 @@
   height: 60rpx;
   border: 1rpx solid #ddd;
   border-radius: 16rpx;
-  padding: 0 0rpx;
   text-align: center;
   background-color: #06456e;
-  max-width: 120rpx;
-  padding-top: 20rpx;
-  color: rgb(255, 255, 255);
+  color: white;
+  line-height: 60rpx;
+  padding: 0;
 }
 
+/* 新增：电话/邮箱条目容器 */
+.contact-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  background-color: white;
+  padding: 10rpx 20rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #ddd;
+  box-sizing: border-box;
+}
+
+.contact-input {
+  flex: 1;
+  height: 50rpx;
+  font-size: 28rpx;
+  padding: 0 10rpx;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.contact-type-picker {
+  width: 120rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  text-align: center;
+  background-color: #06456e;
+  color: white;
+  border-radius: 10rpx;
+  margin: 0 10rpx;
+  font-size: 24rpx;
+}
+
+/* 删除按钮 */
+.del-btn {
+  width: 80rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  font-size: 24rpx;
+  color: #ff4d4f;
+  background: transparent;
+  border: 1rpx solid #ff4d4f;
+  border-radius: 10rpx;
+  padding: 0;
+  margin-left: 10rpx;
+}
+
+/* 添加按钮 */
+.add-btn {
+  width: 100%;
+  height: 60rpx;
+  line-height: 60rpx;
+  font-size: 28rpx;
+  color: #06456e;
+  background: #e6f4ff;
+  border: 1rpx dashed #06456e;
+  border-radius: 16rpx;
+  margin-bottom: 30rpx;
+}
+
+/* 保存按钮 */
 .save-btn {
   width: 100%;
   height: 87rpx;
@@ -73,7 +147,6 @@
   line-height: 50rpx;
   border-radius: 16rpx;
   margin-top: 20rpx;
-  padding:20rpx;
-
+  padding: 20rpx;
   border: none;
 }
