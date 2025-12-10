@@ -1,17 +1,18 @@
 // pages/add/add.js
+// 2025.11.2 v1.1
 Page({
   data: {
-    id: '',
-    mode: 'add',
+    id: '', // 编辑时的联系人 ID
+    mode: 'add', // 'add' 或 'edit'
     name: '',
     phone: '',
     group: '家人',
+    groupOptions: ['家人', '同事', '朋友', '其他'],
     avatar: '/images/default-avatar.png',
-    tempAvatarPath: '', // 临时路径
+    tempAvatarPath: '',
     isSaving: false
   },
 
-  // 页面加载
   onLoad(options) {
     if (options.id) {
       this.setData({ id: options.id, mode: 'edit' });
@@ -19,28 +20,28 @@ Page({
     }
   },
 
-  // 加载
   loadContact(id) {
     wx.showLoading({ title: '加载中...' });
     wx.cloud.callFunction({
       name: 'contact',
-      data: { action: 'get', id }
+      data: { action: 'get', id: id }
     }).then(res => {
       const contact = res.result.data[0] || {};
       this.setData({
         name: contact.name || '',
         phone: contact.phone || '',
         group: contact.group || '家人',
-        avatar: contact.avatar || '/images/default-avatar.png'
+        avatar: contact.avatar || '/images/default-avatar.png',
+        tempAvatarPath: '' 
       });
       wx.hideLoading();
     }).catch(err => {
+      console.error('[加载联系人失败]', err);
       wx.hideLoading();
       wx.showToast({ title: '加载失败', icon: 'error' });
     });
   },
 
-  // 选择头像
   chooseAvatar() {
     wx.chooseImage({
       count: 1,
@@ -49,15 +50,17 @@ Page({
       success: (res) => {
         const tempFilePath = res.tempFilePaths[0];
         this.compressAndCropImage(tempFilePath);
+      },
+      fail: (err) => {
+        console.warn('选择头像取消或失败', err);
       }
     });
   },
 
-  // 压缩图片
   compressAndCropImage(src) {
     wx.showLoading({ title: '处理头像...' });
     wx.getImageInfo({
-      src,
+      src: src,
       success: (info) => {
         const ctx = wx.createCanvasContext('avatarCanvas', this);
         const { width, height } = info;
@@ -65,12 +68,14 @@ Page({
         const x = (width - cropSize) / 2;
         const y = (height - cropSize) / 2;
 
+        // 绘制正方形裁剪区域到 100x100 canvas
         ctx.drawImage(info.path, x, y, cropSize, cropSize, 0, 0, 100, 100);
         ctx.draw(false, () => {
           setTimeout(() => {
             wx.canvasToTempFilePath({
               canvasId: 'avatarCanvas',
               success: (res) => {
+                // 更新页面显示 & 标记需要上传
                 this.setData({
                   avatar: res.tempFilePath,
                   tempAvatarPath: res.tempFilePath
@@ -78,7 +83,7 @@ Page({
                 wx.hideLoading();
               },
               fail: (err) => {
-                console.error('裁剪失败', err);
+                console.error('canvasToTempFilePath 失败', err);
                 wx.showToast({ title: '头像处理失败', icon: 'error' });
                 wx.hideLoading();
               }
@@ -87,21 +92,30 @@ Page({
         });
       },
       fail: (err) => {
+        console.error('getImageInfo 失败', err);
         wx.showToast({ title: '图片加载失败', icon: 'error' });
         wx.hideLoading();
       }
     });
   },
 
-  // 输入绑定
-  onNameInput(e) { this.setData({ name: e.detail.value }); },
-  onPhoneInput(e) { this.setData({ phone: e.detail.value }); },
-  onGroupChange(e) { this.setData({ group: e.detail.value }); },
+  onNameInput(e) {
+    this.setData({ name: e.detail.value });
+  },
 
-  // 保存
+  onPhoneInput(e) {
+    this.setData({ phone: e.detail.value });
+  },
+
+  onGroupChange(e) {
+    const selectedIndex = e.detail.value;
+    const selectedGroup = this.data.groupOptions[selectedIndex];
+    this.setData({ group: selectedGroup });
+  },
+
   saveContact() {
     if (this.data.isSaving) return;
-    
+
     const { name, phone, group } = this.data;
     if (!name.trim()) {
       wx.showToast({ title: '请输入姓名', icon: 'none' });
@@ -114,44 +128,51 @@ Page({
 
     this.setData({ isSaving: true });
 
+    // 头像上传逻辑：仅当用户选择了新头像才上传
     const uploadAvatar = () => {
       if (this.data.tempAvatarPath) {
-        const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.jpg`;
+        // 生成唯一云存储路径
+        const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).substring(2, 12)}.jpg`;
         return wx.cloud.uploadFile({
-          cloudPath,
+          cloudPath: cloudPath,
           filePath: this.data.tempAvatarPath
-        }).then(res => res.fileID);
+        }).then(res => {
+          return res.fileID; // 返回云文件 ID
+        });
       } else {
-        return Promise.resolve(this.data.avatar.includes('cloud') ? this.data.avatar : null);
+        // 未更换头像：保留原 avatar（可能是 fileID 或默认路径）
+        return Promise.resolve(this.data.avatar);
       }
     };
 
-    uploadAvatar().then(avatarFileID => {
-      const payload = { name, phone, group, avatar: avatarFileID };
+    uploadAvatar()
+      .then(avatarFileID => {
+        const payload = { name, phone, group, avatar: avatarFileID };
+        const callData = this.data.mode === 'edit'
+          ? { action: 'update', id: this.data.id, payload }
+          : { action: 'create', payload };
 
-      // 调用云函数
-      const callData = this.data.mode === 'edit'
-        ? { action: 'update', id: this.data.id, payload }
-        : { action: 'create', payload };
-
-      return wx.cloud.callFunction({
-        name: 'contact',
-        data: callData
+        return wx.cloud.callFunction({
+          name: 'contact',
+          data: callData
+        });
+      })
+      .then(res => {
+        if (res.result && res.result.success) {
+          wx.showToast({ title: '保存成功', icon: 'success' });
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 500);
+        } else {
+          throw new Error(res.result?.error || '保存失败');
+        }
+      })
+      .catch(err => {
+        console.error('保存联系人失败:', err);
+        wx.showToast({ title: '保存失败', icon: 'error' });
+      })
+      .finally(() => {
+        this.setData({ isSaving: false });
       });
-    }).then(res => {
-      if (res.result && !res.result.error) {
-        wx.showToast({ title: '保存成功', icon: 'success' });
-        setTimeout(() => {
-          wx.navigateBack();
-        }, 500);
-      } else {
-        throw new Error(res.result?.error || '未知错误');
-      }
-    }).catch(err => {
-      console.error('保存失败', err);
-      wx.showToast({ title: '保存失败', icon: 'error' });
-    }).finally(() => {
-      this.setData({ isSaving: false });
-    });
   }
 });

@@ -31,15 +31,15 @@
 }
 
 .group-filter button {
-  padding: 8rpx 16rpx;
-  font-size: 22rpx;
+  padding: 0rpx 28rpx;
+  font-size: 24rpx;
   background: #f0f0f0;
   color: #333;
   border: none;
   border-radius: 16rpx;
   min-width: 60rpx;
   max-width: 110rpx;
-  height: 45rpx;
+  height: 60rpx;
 }
 
 .group-filter .active {

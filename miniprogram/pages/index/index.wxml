@@ -11,20 +11,24 @@
     </button>
   </view>
 
-  <!-- 联系人列表 -->
-  <view class="contact-list">
-    <view wx:for="{{filteredContacts}}" wx:key="_id" class="contact-item" bindtap="editContact" data-id="{{item._id}}">
-      <image src="{{item.avatarUrl || '/images/default-avatar.png'}}" class="avatar" mode="aspectFill" />
-      <view class="info">
-        <text class="name">{{item.name}}</text>
-        <text class="phone">{{item.phone}}</text>
-        <text class="group">{{item.group}}</text>
-      </view>
-      <button class="delete-btn" size="mini" catchtap="deleteContact" data-id="{{item._id}}">删除</button>
+<!-- 联系人列表 -->
+<view class="contact-list">
+  <view wx:for="{{filteredContacts}}" wx:key="_id" class="contact-item" bindtap="editContact" data-id="{{item._id}}">
+    <image 
+      src="{{item.avatarTempPath || '/images/default-avatar.png'}}" 
+      class="avatar" 
+      mode="aspectFill" 
+    />
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <text class="phone">{{item.phone}}</text>
+      <text class="group">{{item.group}}</text>
     </view>
-
-    <view wx:if="{{filteredContacts.length === 0}}" class="empty">暂无联系人</view>
+    <button class="delete-btn" size="mini" catchtap="deleteContact" data-id="{{item._id}}">删除</button>
   </view>
+
+  <view wx:if="{{filteredContacts.length === 0}}" class="empty">暂无联系人</view>
+</view>
 
 <!-- 刷新按钮 -->
 <view class="refresh-btn" bindtap="loadContacts">
