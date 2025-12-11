@@ -1,0 +1,60 @@
+<view class="page">
+  <view class="action-bar">
+    <button size="mini" type="primary" bindtap="openCreateForm">新建联系人</button>
+    <button size="mini" bindtap="toggleFilterFavorites">
+      {{filterFavorites ? '查看全部' : '只看收藏'}}
+    </button>
+    <button size="mini" bindtap="exportContacts">导出Excel</button>
+    <button size="mini" bindtap="importContacts">导入Excel</button>
+  </view>
+
+  <view wx:if="{{!displayContacts.length}}" class="empty">
+    暂无联系人，点击“新建联系人”开始添加
+  </view>
+
+  <block wx:for="{{displayContacts}}" wx:key="id">
+    <view class="card">
+      <view class="card-header">
+        <view class="name">{{item.name}}</view>
+        <view class="header-actions">
+          <text class="favorite" data-id="{{item.id}}" bindtap="toggleFavorite">
+            {{item.favorite ? '★ 已收藏' : '☆ 收藏'}}
+          </text>
+          <button size="mini" data-id="{{item.id}}" bindtap="openEditForm">编辑</button>
+          <button size="mini" data-id="{{item.id}}" bindtap="deleteContact" type="warn">删除</button>
+        </view>
+      </view>
+      <view class="methods">
+        <view class="method-row" wx:for="{{item.methods}}" wx:for-item="method" wx:key="{{index}}">
+          <view class="method-type">{{method.label}}：</view>
+          <view class="method-value">{{method.value}}</view>
+        </view>
+      </view>
+      <view wx:if="{{item.note}}" class="note">备注：{{item.note}}</view>
+    </view>
+  </block>
+
+  <view wx:if="{{showForm}}" class="modal-mask">
+    <view class="modal">
+      <view class="modal-title">{{editingId ? '编辑联系人' : '新建联系人'}}</view>
+      <input class="input" placeholder="姓名" value="{{form.name}}" bindinput="onNameInput" />
+      <textarea class="textarea" placeholder="备注（可选）" value="{{form.note}}" bindinput="onNoteInput" />
+
+      <view class="section-title">联系方式</view>
+      <view class="method-form-row" wx:for="{{form.methods}}" wx:key="{{index}}">
+        <picker mode="selector" range="{{methodTypes}}" range-key="label" value="{{item.typeIndex || 0}}" data-index="{{index}}" bindchange="onMethodTypeChange">
+          <view class="picker">{{item.label}}</view>
+        </picker>
+        <input class="input" placeholder="请输入内容" value="{{item.value}}" data-index="{{index}}" bindinput="onMethodValueInput" />
+        <button size="mini" data-index="{{index}}" bindtap="removeMethodRow" wx:if="{{form.methods.length>1}}">删除</button>
+      </view>
+      <button size="mini" bindtap="addMethodRow">新增联系方式</button>
+
+      <view class="modal-actions">
+        <button bindtap="closeForm">取消</button>
+        <button type="primary" bindtap="submitForm">保存</button>
+      </view>
+    </view>
+  </view>
+</view>
+
