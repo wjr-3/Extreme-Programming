@@ -5,7 +5,7 @@ Page({
     id: '',
     mode: 'add',
     name: '',
-    // --- 新增多联系方式结构 ---
+    // --- 新增多联系方式结构 ---增加不同的格式，保证多种联系方式支持
     phones: [], // [{ value: '138...', type: '手机' }]
     emails: [], // [{ value: 'a@b.com', type: '个人' }]
     address: '',

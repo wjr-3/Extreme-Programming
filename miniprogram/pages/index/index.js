@@ -25,7 +25,7 @@ Page({
       if (res.result?.success) {
         let contacts = res.result.data || [];
 
-        // 确保每个联系人都有 isFavorite 字段aaa
+        // 确保每个联系人都有 isFavorite 字段
         contacts = contacts.map(c => ({
           ...c,
           isFavorite: c.isFavorite === true // 严格布尔值，避免 undefined
