@@ -1,0 +1,154 @@
+.page {
+  padding: 20rpx;
+  background: #f6f6f6;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty {
+  color: #999;
+  text-align: center;
+  padding: 80rpx 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+  gap: 12rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #111;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.favorite {
+  color: #f8a529;
+}
+
+.methods {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.method-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.method-type {
+  width: 120rpx;
+  color: #666;
+}
+
+.method-value {
+  flex: 1;
+  word-break: break-all;
+}
+
+.note {
+  margin-top: 10rpx;
+  color: #888;
+  font-size: 26rpx;
+}
+
+.modal-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  width: 90%;
+  box-sizing: border-box;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.input,
+.textarea {
+  margin-bottom: 12rpx;
+  border: 1px solid #e5e5e5;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.textarea {
+  min-height: 120rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  margin: 10rpx 0;
+  font-weight: 500;
+}
+
+.method-form-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.picker {
+  min-width: 140rpx;
+  padding: 12rpx;
+  border: 1px solid #e5e5e5;
+  border-radius: 8rpx;
+  color: #333;
+  font-size: 26rpx;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
